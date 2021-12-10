@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <button id="ajax_get">ajax_get</button>
+    <button id="ajax_post">ajax_post</button>
+    <button id="abort">abort</button>
+    <script>
+        const ajaxGetBtn = document.getElementById('ajax_get')
+        ajaxGetBtn.onclick = function () {
+            const xhr = new XMLHttpRequest()
+            /**
+             * 0 初始状态
+             * 1 open 已调用 send 没调用 修改请求头
+             * 2 send 已调用
+             * 3 接收部分数据和完整响应头
+             * 4 数据接收完毕
+            */
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 1) {
+                    xhr.setRequestHeader('auth', 'token')
+                }
+                if (xhr.readyState === 3) {
+                    console.log(xhr.getAllResponseHeaders())
+                    console.log(xhr.getResponseHeader("x-powered-by"))
+                }
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        console.log(xhr.response)
+                    }
+                }
+            }
+            xhr.open('GET', 'http://localhost:8080/test_get/1?name=Taylor&age=18')
+            xhr.send()
+        }
+    </script>
+    <script>
+        const ajaxPostBtn = document.getElementById('ajax_post')
+        let xhr
+        ajaxPostBtn.onclick = function () {
+            xhr = new XMLHttpRequest()
+            xhr.onerror = function () {
+                console.log('请求错误')
+            }
+            xhr.timeout = 3000
+            xhr.ontimeout = function () {
+                console.log('请求超时')
+            }
+            xhr.onabort = function () {
+                console.log('abort')
+            }
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        console.log(xhr.response)
+                    }
+                }
+            }
+            xhr.open('POST', 'http://localhost:8080/test_post')
+            // xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+            // xhr.send('name=Taylor&age=18')
+            xhr.responseType = 'json'
+            xhr.setRequestHeader('Content-Type', 'application/json')
+            xhr.send(JSON.stringify({ name: 'Taylor', age: 20 }))
+        }
+    </script>
+    <script>
+        const abortBtn = document.getElementById('abort')
+        abortBtn.onclick = function () {
+            xhr.abort()
+        }
+    </script>
+
+    <hr>
+    <button id="jquery_get">jquery_get</button>
+    <button id="jquery_post">jquery_post</button>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script>
+        $("#jquery_get").click(function () {
+            $.ajax({
+                url: '/test_get/2',
+                method: 'GET',
+                data: {
+                    name: 'YISA',
+                    age: 30
+                },
+                success(data) {
+                    console.log(data)
+                }
+            })
+            $.get('/test_get/3', { name: 'stefzi' }, function (data) {
+                console.log(data)
+            })
+        })
+        $("#jquery_post").click(function () {
+            $.ajax({
+                url: '/test_post',
+                method: 'POST',
+                data: {
+                    name: 'YISA',
+                    age: 30
+                },
+                success(data) {
+                    console.log(data)
+                },
+                dataType: 'json'
+            })
+            $.post('/test_post', { name: 'stefzi' }, function (data) {
+                console.log(data)
+            }, 'json')
+        })
+    </script>
+
+    <hr>
+    <button id="jsonp_js">jsonp_js</button>
+    <button id="jsonp_jquery">jsonp_jquery</button>
+    <script>
+        $("#jsonp_js").click(function () {
+            const callback = 'fn'
+            const scr = document.createElement('script')
+            scr.src = 'http://127.0.0.1:8080/jsonp?callback=' + callback
+            document.body.appendChild(scr)
+            window[callback] = function (data) {
+                console.log(data)
+            }
+            document.body.removeChild(scr)
+        })
+
+        $('#jsonp_jquery').click(function () {
+            $.getJSON('http://127.0.0.1:8080/jsonp?callback=?'
+                , function (data) {
+                    console.log(data)
+                })
+        })
+    </script>
+
+    <hr>
+    <button id="cors">cors</button>
+    <script>
+        $("#cors").click(function () {
+            const xhr = new XMLHttpRequest()
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 3) {
+                    console.log(xhr.getAllResponseHeaders())
+                }
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        console.log(xhr.response)
+                    }
+                }
+            }
+            xhr.open('GET', 'http://127.0.0.1:8080/test_get/1?name=YISA')
+            xhr.send()
+        })
+    </script>
+</body>
+
+</html>

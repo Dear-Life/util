@@ -1,0 +1,4 @@
+- [json-server](https://github.com/typicode/json-server)
+- [apidoc](https://apidocjs.com/)
+- [browserify](https://browserify.org/)
+- [webpack](https://webpack.js.org/)

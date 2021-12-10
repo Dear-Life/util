@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <script src="axios.js"></script>
+    <script>
+        (async () => {
+            // GET 不带参数
+            // const { data } = await axios({
+            //     url: 'http://localhost:5000/persons',
+            //     method: 'GET'
+            // })
+            // const { data } = await axios.get('http://localhost:5000/persons')
+            // console.log(data)
+
+            // GET 携带参数
+            // const { data } = await axios({
+            //     url: 'http://localhost:5000/person',
+            //     method: 'GET',
+            //     params: {
+            //         id: 2
+            //     }
+            // })
+            // const { data } = await axios.get(
+            //     'http://localhost:5000/person',
+            //     {
+            //         params: { id: 2 }
+            //     }
+            // )
+            // console.log(data)
+        })();
+    </script>
+    <script>
+        (async () => {
+            // POST 带参数
+            // const { data } = await axios({
+            //     url: 'http://localhost:5000/person',
+            //     method: 'POST',
+            //     // data: {
+            //     //     name: 'YISA',
+            //     //     age: 18
+            //     // }
+            //     data: "name=Taylor&age=20"
+            // })
+            // const { data } = await axios.post(
+            //     'http://localhost:5000/person',
+            //     {
+            //         name: 'stefzi',
+            //         age: 30
+            //     }
+            // )
+            // const { data } = await axios.post(
+            //     'http://localhost:5000/person',
+            //     'name=Taylor&age=22'
+            // )
+            // console.log(data)
+        })();
+    </script>
+    <script>
+        (async () => {
+            // PUT 带参数
+            // const { data } = await axios({
+            //     url: 'http://localhost:5000/person',
+            //     method: 'PUT',
+            //     data: {
+            //         id: 1,
+            //         name: '小明',
+            //         age: 60
+            //     }
+            // })
+            // const { data } = await axios.put(
+            //     'http://localhost:5000/person',
+            //     {
+            //         id: 1,
+            //         name: '小宏',
+            //         age: 70
+            //     }
+            // )
+            // console.log(data)
+        })();
+    </script>
+    <script>
+        (async () => {
+            // DELETE 带参数
+            // const { data } = await axios({
+            //     url: 'http://localhost:5000/person/1',
+            //     method: 'DELETE'
+            // })
+            // const { data } = await axios.delete(
+            //     'http://localhost:5000/person/2'
+            // )
+            // console.log(data)
+        })();
+    </script>
+
+    <script>
+        (async function () {
+            /*
+            常用配置项
+            axios.defaults.baseURL = 'http://localhost:5000'
+            console.log(axios.defaults.headers)
+            const { data } = await axios({
+                url: '/persons',
+                // method:'GET',
+                // params
+                // data
+                // timeout:1000
+                // headers: { demo: 123 }
+                // responseType: 'json'
+            })
+            console.log(data)
+            */
+        }());
+    </script>
+
+    <script>
+        // 没有取消请求和批量发送功能
+        // const instance = axios.create({
+            // baseURL: 'https://api.example.com'
+        // })
+    </script>
+
+    <script>
+        /*
+        // 添加请求拦截器
+        axios.interceptors.request.use(function (config) {
+            // 在发送请求之前做些什么
+            console.log(config.headers)
+            return config;
+        }, function (error) {
+            // 对请求错误做些什么
+            return Promise.reject(error);
+        });
+
+        // 添加响应拦截器
+        axios.interceptors.response.use(function (response) {
+            // 对响应数据做点什么
+            return response.data;
+        }, function (error) {
+            // 对响应错误做点什么
+            return Promise.reject(error);
+        });
+
+        axios.get('http://localhost:5000/persons')
+            .then(value => {
+                console.log(value)
+            })
+        */
+    </script>
+
+    <script>
+        // 取消请求
+        const CancelToken = axios.CancelToken
+        let cancel
+
+        axios.interceptors.request.use(function (config) {
+            cancel && cancel('取消请求')
+            config.cancelToken = new CancelToken(function executor(c) {
+                // executor 函数接收一个 cancel 函数作为参数
+                cancel = c
+            })
+            return config
+        })
+        axios.interceptors.response.use(function (response) {
+            return response.data
+        }, function (reason) {
+            if (axios.isCancel(reason)) {
+                console.log('Request canceled', reason.message);
+            } else {
+                // 处理错误
+                console.log('错误')
+            }
+            return new Promise(() => { })
+        })
+
+
+        axios({
+            url: 'http://localhost:5000/test1?delay=3000',
+        }).then(value => {
+            console.log(value)
+        })
+        axios({
+            url: 'http://localhost:5000/test1?delay=3000',
+        }).then(value => {
+            console.log(value)
+        })
+
+        axios.all(
+            [
+                axios.create().get('http://localhost:5000/test1?delay=3000')
+                ,
+                axios.create().get('http://localhost:5000/test2?delay=6000')
+                ,
+                axios.create().get('http://localhost:5000/test3?delay=1000')
+            ]
+        )
+            .then(axios.spread(function () {
+                // 请求现在都执行完成
+                console.log(arguments)
+            }));
+    </script>
+</body>
+
+</html>
